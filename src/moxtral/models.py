@@ -24,6 +24,39 @@ _CONFIDENCE_VALUES: tuple[Confidence, ...] = ("page", "word")
 _TIMESTAMP_VALUES: tuple[TimestampGranularity, ...] = ("segment", "word")
 
 DEFAULT_RETRIES = 3
+DEFAULT_TRANSCRIPTION_MODEL = "voxtral-mini-transcribe-3"
+
+ModelFamily: TypeAlias = Literal["v2", "v3", "unknown"]
+
+# "-latest" aliases match exactly; dated ids also accept a "-suffix".
+_V2_PREFIXES = (
+    "voxtral-mini-latest",
+    "voxtral-mini-2602",
+    "voxtral-mini-2507",
+    "voxtral-mini-transcribe-2507",
+    "voxtral-small-latest",
+    "voxtral-small-2507",
+    "voxtral-mini-transcribe-realtime-2602",
+)
+_V3_PREFIXES = (
+    "voxtral-mini-transcribe-3",
+    "voxtral-small-transcribe-3",
+    "voxtral-mini-transcribe-latest",
+    "voxtral-small-transcribe-latest",
+    "voxtral-mini-transcribe-realtime-3",
+)
+
+
+def model_family(model: str) -> ModelFamily:
+    """Classify a transcription model id; unknown ids get no client-side rules."""
+    if any(model.startswith(prefix) for prefix in _V3_PREFIXES):
+        return "v3"
+    for prefix in _V2_PREFIXES:
+        if model == prefix:
+            return "v2"
+        if not prefix.endswith("-latest") and model.startswith(prefix + "-"):
+            return "v2"
+    return "unknown"
 
 
 class SourceKind(StrEnum):
@@ -269,8 +302,18 @@ def build_transcription_request(
             seen_timestamps.add(timestamp)
             unique_timestamps.append(timestamp)
 
-    if language is not None and unique_timestamps:
-        raise InputError("--language cannot be combined with --timestamps.")
+    family = model_family(model)
+    if family == "v2" and language is not None and unique_timestamps:
+        raise InputError(
+            "--language cannot be combined with --timestamps on Voxtral 2 models."
+        )
+    if family == "v3":
+        if "word" in unique_timestamps:
+            raise InputError(
+                "--timestamps word is not supported by Voxtral 3 models; use segment."
+            )
+        if diarize and "segment" not in unique_timestamps:
+            unique_timestamps.append("segment")
 
     return TranscriptionRequest(
         source=source,

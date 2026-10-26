@@ -7,6 +7,7 @@ import pytest
 
 from moxtral.errors import InputError
 from moxtral.models import (
+    DEFAULT_TRANSCRIPTION_MODEL,
     ApiResult,
     Confidence,
     InputSource,
@@ -21,6 +22,7 @@ from moxtral.models import (
     TranscriptionRequest,
     build_ocr_request,
     build_transcription_request,
+    model_family,
     ocr_request_metadata,
     transcription_request_metadata,
 )
@@ -308,14 +310,120 @@ def test_blank_language_is_rejected(
         build_transcription_request(source=source, model="audio", language=language)
 
 
-def test_language_is_incompatible_with_timestamps(source: InputSource) -> None:
-    with pytest.raises(InputError, match=r"--language.*--timestamps"):
+def test_v2_language_with_timestamps_rejected(source: InputSource) -> None:
+    with pytest.raises(InputError, match="Voxtral 2") as info:
         build_transcription_request(
             source=source,
-            model="audio",
+            model="voxtral-mini-latest",
             language="en",
             timestamps=("segment",),
         )
+    assert str(info.value) == (
+        "--language cannot be combined with --timestamps on Voxtral 2 models."
+    )
+
+
+def test_v3_word_timestamps_rejected(source: InputSource) -> None:
+    with pytest.raises(InputError, match="segment") as info:
+        build_transcription_request(
+            source=source,
+            model="voxtral-small-transcribe-3",
+            timestamps=("word",),
+        )
+    assert str(info.value) == (
+        "--timestamps word is not supported by Voxtral 3 models; use segment."
+    )
+
+
+def test_v3_word_with_segment_also_rejected(source: InputSource) -> None:
+    with pytest.raises(InputError, match="segment"):
+        build_transcription_request(
+            source=source,
+            model="voxtral-mini-transcribe-3",
+            timestamps=("segment", "word"),
+        )
+
+
+def test_v3_language_with_segment_allowed(source: InputSource) -> None:
+    request = build_transcription_request(
+        source=source,
+        model="voxtral-small-transcribe-3",
+        language="de",
+        timestamps=("segment",),
+    )
+    assert request.language == "de"
+    assert request.timestamps == ("segment",)
+
+
+def test_unknown_model_has_no_family_rules(source: InputSource) -> None:
+    request = build_transcription_request(
+        source=source,
+        model="my-finetune",
+        language="de",
+        timestamps=("word",),
+        diarize=True,
+    )
+    assert request.language == "de"
+    assert request.timestamps == ("word",)
+    assert request.diarize is True
+
+
+def test_v3_diarize_adds_segment_once(source: InputSource) -> None:
+    added = build_transcription_request(
+        source=source, model="voxtral-small-transcribe-3", diarize=True
+    )
+    assert added.timestamps == ("segment",)
+    present = build_transcription_request(
+        source=source,
+        model="voxtral-small-transcribe-3",
+        diarize=True,
+        timestamps=("segment",),
+    )
+    assert present.timestamps == ("segment",)
+
+
+def test_v2_diarize_does_not_add_segment(source: InputSource) -> None:
+    request = build_transcription_request(
+        source=source, model="voxtral-mini-latest", diarize=True
+    )
+    assert request.timestamps == ()
+
+
+def test_request_metadata_reflects_auto_added_segment(source: InputSource) -> None:
+    request = build_transcription_request(
+        source=source, model="voxtral-mini-transcribe-3", diarize=True
+    )
+    assert transcription_request_metadata(request)["timestamps"] == ["segment"]
+
+
+@pytest.mark.parametrize(
+    ("model", "family"),
+    [
+        ("voxtral-small-transcribe-3", "v3"),
+        ("voxtral-mini-transcribe-3", "v3"),
+        ("voxtral-mini-transcribe-3-0", "v3"),
+        ("voxtral-mini-transcribe-latest", "v3"),
+        ("voxtral-small-transcribe-latest", "v3"),
+        ("voxtral-mini-transcribe-realtime-3", "v3"),
+        ("voxtral-mini-latest", "v2"),
+        ("voxtral-mini-2602", "v2"),
+        ("voxtral-mini-2507", "v2"),
+        ("voxtral-mini-transcribe-2507", "v2"),
+        ("voxtral-small-latest", "v2"),
+        ("voxtral-small-2507", "v2"),
+        ("voxtral-mini-transcribe-realtime-2602", "v2"),
+        ("voxtral-mini-2602-x", "v2"),
+        ("voxtral-mini-latest-x", "unknown"),
+        ("my-finetune", "unknown"),
+        ("audio", "unknown"),
+    ],
+)
+def test_model_family(model: str, family: str) -> None:
+    assert model_family(model) == family
+
+
+def test_default_transcription_model() -> None:
+    assert DEFAULT_TRANSCRIPTION_MODEL == "voxtral-mini-transcribe-3"
 
 
 @pytest.mark.parametrize("temperature", [float("nan"), float("inf"), -float("inf")])
