@@ -50,8 +50,8 @@ Everything the internal code passes around is defined in
 `TranscriptionRequest`, and the pivotal `ApiResult`/`SavedResult`, none of which
 depend on Click or the SDK. The `build_ocr_request` / `build_transcription_request`
 factories are the single validation gate — normalizing page ranges, enforcing the
-`--language`/`--timestamps` incompatibility, de-duplicating timestamp
-granularities, bounding context-bias, converting `--timeout` seconds to the
+`--language`/`--timestamps` incompatibility on Voxtral 2 models (Voxtral 3 allows
+`segment` with language and rejects `word`), de-duplicating timestamp granularities, bounding context-bias, converting `--timeout` seconds to the
 SDK's `timeout_ms`, and rejecting a negative `retries` (default `DEFAULT_RETRIES
 = 3`). `retries` is echoed into `ocr_request_metadata()`/
 `transcription_request_metadata()` alongside the other saved options.
