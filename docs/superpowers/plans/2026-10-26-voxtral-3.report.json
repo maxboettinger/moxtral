@@ -1,0 +1,301 @@
+{
+ "projection_note": "projection: fixed forecast saved at lint 2026-10-26T16:32:33",
+ "headline": {
+  "wall_min": {
+   "projected": 8.155,
+   "actual": 26.96
+  },
+  "cost_usd_agents": {
+   "projected": 0.088586,
+   "actual": 1.869227
+  },
+  "task_min": {
+   "projected": 8.155,
+   "actual": 32.047
+  },
+  "agents": {
+   "projected": 2,
+   "actual": 34
+  }
+ },
+ "cost_split": {
+  "agents_usd": 1.869227,
+  "rework_usd": 0,
+  "coordinator_usd": 5.813266,
+  "total_usd": 7.682493
+ },
+ "concurrency": {
+  "peak": 4,
+  "projected_peak": 1
+ },
+ "critical_path": {
+  "actual": [
+   "T11"
+  ],
+  "projected": [
+   "M1",
+   "M2"
+  ],
+  "projected_min": 8.155
+ },
+ "model_mix": {
+  "haiku": {
+   "tasks": 1,
+   "cost_usd": 0.019559
+  },
+  "sonnet": {
+   "tasks": 12,
+   "cost_usd": 1.849668
+  }
+ },
+ "coordinator_cost_by_model": {
+  "sonnet": 5.813266
+ },
+ "quality": {
+  "tests": {
+   "passed": 457,
+   "failed": 0,
+   "skipped": 0,
+   "seconds": 2.1,
+   "mode": "full",
+   "failures": [],
+   "skipped_tests": [],
+   "files": {
+    "tests/test_agent_cli.py": [
+     3,
+     0
+    ],
+    "tests/test_cli_common.py": [
+     6,
+     0
+    ],
+    "tests/test_cli_root.py": [
+     3,
+     0
+    ],
+    "tests/test_config.py": [
+     32,
+     0
+    ],
+    "tests/test_config_cli.py": [
+     15,
+     0
+    ],
+    "tests/test_console.py": [
+     4,
+     0
+    ],
+    "tests/test_dedupe.py": [
+     31,
+     0
+    ],
+    "tests/test_errors.py": [
+     23,
+     0
+    ],
+    "tests/test_formatters.py": [
+     29,
+     0
+    ],
+    "tests/test_mistral_client.py": [
+     19,
+     0
+    ],
+    "tests/test_models.py": [
+     90,
+     0
+    ],
+    "tests/test_ocr_cli.py": [
+     63,
+     0
+    ],
+    "tests/test_schema.py": [
+     3,
+     0
+    ],
+    "tests/test_services.py": [
+     6,
+     0
+    ],
+    "tests/test_sources.py": [
+     45,
+     0
+    ],
+    "tests/test_storage.py": [
+     18,
+     0
+    ],
+    "tests/test_transcribe_cli.py": [
+     65,
+     0
+    ],
+    "tests/test_version.py": [
+     2,
+     0
+    ]
+   }
+  },
+  "first_time_pass": 1,
+  "first_time_n": 1,
+  "rework_dispatches": 0,
+  "open_incidents": 0
+ },
+ "tasks": [
+  {
+   "task": "M1",
+   "model": "sonnet",
+   "pred_min": 3.263,
+   "actual_min": 5.287,
+   "delta": {
+    "abs": 2.0237,
+    "pct": 62.0
+   },
+   "cost_usd": 0.166536,
+   "first_time_pass": null
+  },
+  {
+   "task": "T0",
+   "model": "haiku",
+   "pred_min": null,
+   "actual_min": 12.358,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.019559,
+   "first_time_pass": true
+  },
+  {
+   "task": "T1",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.773,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.107585,
+   "first_time_pass": null
+  },
+  {
+   "task": "T10",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 2.262,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.167529,
+   "first_time_pass": null
+  },
+  {
+   "task": "T11",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.31,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.068175,
+   "first_time_pass": null
+  },
+  {
+   "task": "T2",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.458,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.070855,
+   "first_time_pass": null
+  },
+  {
+   "task": "T3",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.412,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.067334,
+   "first_time_pass": null
+  },
+  {
+   "task": "T4",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.745,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.138,
+   "first_time_pass": null
+  },
+  {
+   "task": "T5",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.748,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.111885,
+   "first_time_pass": null
+  },
+  {
+   "task": "T6",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.883,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.122035,
+   "first_time_pass": null
+  },
+  {
+   "task": "T7",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 0.705,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.093825,
+   "first_time_pass": null
+  },
+  {
+   "task": "T8",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 4.895,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.426318,
+   "first_time_pass": null
+  },
+  {
+   "task": "T9",
+   "model": "sonnet",
+   "pred_min": null,
+   "actual_min": 2.21,
+   "delta": {
+    "abs": null,
+    "pct": null
+   },
+   "cost_usd": 0.309591,
+   "first_time_pass": null
+  }
+ ]
+}
