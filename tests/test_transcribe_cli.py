@@ -135,7 +135,7 @@ def test_help_describes_sources_options_and_defaults() -> None:
     ):
         assert option in result.stdout
     assert "voxtral-" in result.stdout
-    assert "mini-latest" in result.stdout
+    assert "mini-transcribe-3" in result.stdout
     assert "both" in result.stdout
     assert "300" in result.stdout
 
@@ -153,7 +153,7 @@ def test_local_audio_defaults_save_both_markdown_and_full_json(
     request = harness.gateway.requests[0]
     assert request.source.path == source
     assert request.source.filename == "sample.mp3"
-    assert request.model == "voxtral-mini-latest"
+    assert request.model == "voxtral-mini-transcribe-3"
     assert request.language is None
     assert request.temperature is None
     assert request.diarize is False
@@ -172,7 +172,7 @@ def test_local_audio_defaults_save_both_markdown_and_full_json(
     assert envelope["schema_version"] == 1
     assert cast(dict[str, object], envelope["source"])["kind"] == "file"
     assert cast(dict[str, object], envelope["request"]) == {
-        "model": "voxtral-mini-latest",
+        "model": "voxtral-mini-transcribe-3",
         "language": None,
         "temperature": None,
         "diarize": False,
@@ -260,10 +260,63 @@ def test_timestamps_choice_is_case_insensitive(
     assert harness.gateway.requests[0].timestamps == ("segment",)
 
 
+def test_language_and_segment_timestamps_reach_gateway_on_default_model(
+    harness: Harness,
+    tmp_path: Path,
+) -> None:
+    source = make_audio(tmp_path)
+
+    result = harness.invoke(
+        str(source),
+        "--language",
+        "de",
+        "--timestamps",
+        "segment",
+    )
+
+    assert result.exit_code == 0, result.output
+    request = harness.gateway.requests[0]
+    assert request.language == "de"
+    assert request.timestamps == ("segment",)
+
+
+def test_word_timestamps_on_default_model_fail_without_gateway_call(
+    harness: Harness,
+    tmp_path: Path,
+) -> None:
+    source = make_audio(tmp_path)
+
+    result = harness.invoke(str(source), "--timestamps", "word")
+
+    assert result.exit_code == 1
+    assert "segment" in result.stderr
+    assert harness.gateway.requests == []
+
+
+def test_v2_model_keeps_language_timestamps_exclusion(
+    harness: Harness,
+    tmp_path: Path,
+) -> None:
+    source = make_audio(tmp_path)
+
+    result = harness.invoke(
+        str(source),
+        "--model",
+        "voxtral-mini-latest",
+        "--language",
+        "de",
+        "--timestamps",
+        "segment",
+    )
+
+    assert result.exit_code == 1
+    assert "cannot be combined" in result.stderr
+    assert harness.gateway.requests == []
+
+
 @pytest.mark.parametrize(
     ("arguments", "message"),
     [
-        (("--language", "de", "--timestamps", "segment"), "cannot be combined"),
         (("--context-bias", " "), "must not be blank"),
         (("--temperature", "nan"), "finite"),
         (("--temperature", "inf"), "finite"),
@@ -738,7 +791,7 @@ def test_dry_run_json_needs_no_api_key(tmp_path: Path) -> None:
     records = parse_ndjson(result.stdout)
     assert [record["status"] for record in records] == ["dry_run", "summary"]
     request = cast("dict[str, JSONValue]", records[0]["request"])
-    assert request["model"] == "voxtral-mini-latest"
+    assert request["model"] == "voxtral-mini-transcribe-3"
     assert request["diarize"] is True
 
 
@@ -886,7 +939,7 @@ def test_json_skip_record_shape_and_summary_skipped_count(
     existing = cast("dict[str, JSONValue]", skipped["existing"])
     assert existing["markdown"] == first_saved["markdown"]
     assert existing["json"] == first_saved["json"]
-    assert existing["model"] == "voxtral-mini-latest"
+    assert existing["model"] == "voxtral-mini-transcribe-3"
     assert records[-1] == {
         "schema_version": 1,
         "status": "summary",
@@ -1067,3 +1120,15 @@ def test_unreadable_stored_markdown_falls_through_to_processing(
     assert result.exit_code == 0
     assert len(harness.gateway.requests) == 2
     assert "Skipping duplicate:" not in result.stderr
+
+
+def test_diarize_on_default_model_sends_segment_and_records_it(
+    harness: Harness,
+    tmp_path: Path,
+) -> None:
+    source = make_audio(tmp_path)
+
+    result = harness.invoke(str(source), "--diarize", "--json")
+
+    assert result.exit_code == 0, result.output
+    assert harness.gateway.requests[0].timestamps == ("segment",)

@@ -44,8 +44,11 @@ Key `ocr` options: `--pages 0,2-4` (0-indexed), `--table-format markdown|html`,
 `--extract-header`, `--extract-footer`, `--model` (default `mistral-ocr-latest`).
 
 Key `transcribe` options: `--diarize`, `--timestamps segment|word` (repeatable),
-`--language CODE` (cannot combine with `--timestamps`), `--context-bias TEXT`
-(repeatable), `--model` (default `voxtral-mini-latest`).
+`--language CODE`, `--context-bias TEXT` (repeatable), `--model` (default
+`voxtral-mini-transcribe-3`).
+Voxtral 3 models (default) allow `--language` with `--timestamps segment`, reject
+`--timestamps word`, and `--diarize` implies `segment`. Voxtral 2 models
+(`voxtral-mini-latest`, `voxtral-mini-2602`) reject `--language` with `--timestamps`.
 
 Shared options: `--json`, `--stdout`, `--quiet`, `--no-save`, `--dry-run`,
 `--output-dir DIR`, `--format md|json|both` (saved files), `--timeout SECONDS`,

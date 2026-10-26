@@ -11,6 +11,7 @@ from moxtral.formatters import format_transcription_markdown
 from moxtral.mistral_client import MistralGateway
 from moxtral.models import (
     DEFAULT_RETRIES,
+    DEFAULT_TRANSCRIPTION_MODEL,
     Operation,
     OutputFormat,
     TimestampGranularity,
@@ -43,7 +44,7 @@ def create_result_store() -> ResultStore:
 @click.argument("sources", metavar="SOURCE...", nargs=-1, required=True)
 @click.option(
     "--model",
-    default="voxtral-mini-latest",
+    default=DEFAULT_TRANSCRIPTION_MODEL,
     show_default=True,
     help="Audio transcription model.",
 )

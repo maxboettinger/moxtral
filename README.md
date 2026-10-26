@@ -182,12 +182,16 @@ moxtral transcribe interview.mp3 \
 | `--diarize` | Request speaker identification. |
 | `--context-bias TEXT` | Contextual hint; repeatable, up to 100 values. |
 | `--timestamps segment\|word` | Repeatable; duplicates ignored. |
-| `--model TEXT` | Transcription model. Default: `voxtral-mini-latest`. |
+| `--model TEXT` | Transcription model. Default: `voxtral-mini-transcribe-3`. |
 | `--timeout SECONDS` | Positive request timeout. Default: `300`. |
 | `--retries N` | Retry attempts for rate-limited, server-error, and connection failures, with exponential backoff. Default: `3`; `0` disables. |
 
-> `--language` and `--timestamps` cannot be combined — the Mistral API does not
-> support that pairing.
+**Model families** — the rules depend on the model:
+
+| Family | Models | Rules | Price |
+| --- | --- | --- | --- |
+| Voxtral 3 | `voxtral-mini-transcribe-3` (default), `voxtral-small-transcribe-3` | `--language` with `--timestamps segment` is allowed; `--timestamps word` is rejected; `--diarize` implies `--timestamps segment`. | mini $0.0035/min, small $0.004/min |
+| Voxtral 2 | `voxtral-mini-latest`, `voxtral-mini-2602` | `--language` and `--timestamps` cannot be combined; `--timestamps word` is supported. | $0.003/min |
 
 ---
 

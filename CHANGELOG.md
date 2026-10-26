@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-10-26
+
+### Added
+
+- Voxtral 3 model family rules: `--language` can be combined with
+  `--timestamps segment`; `--timestamps word` is rejected; `--diarize`
+  implies `--timestamps segment`. Voxtral 2 models keep the
+  `--language`/`--timestamps` exclusion.
+- `model_family` helper that classifies a transcription model as `v2`, `v3`,
+  or `unknown`.
+
+### Changed (breaking)
+
+- The default transcription model changed from `voxtral-mini-latest` to
+  `voxtral-mini-transcribe-3`. Pass `--model voxtral-mini-latest` to keep the
+  old behaviour. Existing dedupe entries keyed on the old model stay valid for
+  explicit runs.
+
 ## [0.4.0] - 2026-07-13
 
 ### Added
